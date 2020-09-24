@@ -1029,7 +1029,44 @@ new Vue({
 
 ####  生命周期
 
+- 通过模拟数据库的数组
+  - 一般此时 该过程里面是调取ajax数据  
 
+```html
+  <tbody>
+    <tr :key='item.id' v-for='item in books'>
+      <td>{{item.id}}</td>
+      <td>{{item.name}}</td>
+      <td>{{item.date | format('yyyy-MM-dd hh:mm:ss')}}</td>
+    </tr>
+  </tbody>
+
+  <script type="text/javascript">
+  mounted: function() {
+      // 该生命周期钩子函数被触发的时候， 模板已经可以使用
+      // 一般此时用于获取后台数据, 然后把数据填充到模板
+      var data = [{
+        id: 1,
+        name: '三国演义',
+        date: new Date()
+      }, {
+        id: 2,
+        name: '水浒传',
+        date: new Date()
+      }, {
+        id: 3,
+        name: '红楼梦',
+        date: new Date()
+      }, {
+        id: 4,
+        name: '西游记',
+        date: new Date()
+      }];
+      this.books = data;
+    }
+</script>
+
+```
 
 
 
