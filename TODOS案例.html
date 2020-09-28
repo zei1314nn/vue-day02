@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+    <section id="todoapp" class="todoapp">
+        <header class="header">
+            <h1>todos</h1>
+            <input placeholder="What needs to be done?" class="new-todo" v-on:keyup.enter='Add'>
+        </header>
+        <section class="main">
+            <input v-model='toggleStat' id="toggle-all" type="checkbox" class="toggle-all">
+            <label for="toggle-all">Mark all as complete</label>
+            <ul class="todo-list" :key='index' v-for='(item,index) in todos'>
+                <li :class="{completed: item.completed, editing: item === currentEditing}">
+                    <div class="view">
+                        <input type="checkbox" class="toggle" v-model='item.completed'>
+                        <label v-on:dblclick='currentEditing = item'>{{item.title}}</label>
+                        <button class="destroy" @click='del(item.id)'></button>
+                    </div>
+                    <input class="edit" :value="item.title" @keyup.esc="currentEditing = null"
+                        @keyup.enter="saveEdit(item, index, $event)" @blur="saveEdit(item, index, $event)">
+            </ul>
+        </section>
+        <footer class="footer">
+            <span class="todo-count">
+                <strong>{{num}}</strong> item left</span>
+            <ul class="filters">
+                <li><a href="#/" class="selected">All</a></li>
+                <li><a href="#/active">Active</a></li>
+                <li><a href="#/completed">Completed</a></li>
+            </ul>
+            <button class="clear-completed" @click='removeAllDone'>Clear completed</button>
+        </footer>
+    </section>
+    <script src="js/vue.js"></script>
+    <script>
+        new Vue({
+            el: "#todoapp",
+            data: {
+                todos: [{
+                    id: 1,
+                    title: '吃饭',
+                    completed: false
+                }, {
+                    id: 2,
+                    title: '睡觉',
+                    completed: false
+                }, {
+                    id: 3,
+                    title: '打豆豆',
+                    completed: true
+                }],
+                currentEditing: null,
+            },
+            methods: {
+                Add: function (event) {
+                    var toduText = event.target.value.trim();
+                    if (toduText == '') {
+                        event.target.value = ''
+                    } else {
+                        const lastTodo = this.todos[this.todos.length - 1];
+                        const id = lastTodo ? lastTodo.id + 1 : 1;
+                        this.todos.push({
+                            id,
+                            title: toduText,
+                            completed: false
+                        });
+                        event.target.value = ''
+                    }
+                },
+                del: function (id) {
+                    this.todos = this.todos.filter(function (item) {
+                        return item.id != id;
+                    });
+                },
+                // 保存编辑项
+                saveEdit(item, index, event) {
+                    // 1. 拿到文本框中的数据
+                    //    非空校验
+                    //    如果为空，则直接删除这个 item
+                    //    如果不为空，则修改任务项的 title 数据
+                    var editText = event.target.value.trim()
+
+                    // 程序员要具有工匠精神：优化简写
+                    // !editText.length ?
+                    //   this.todos.splice(index, 1) :
+                    //   item.title = editText
+
+                    if (!editText.length) {
+                        // 将元素直接从数组中移除
+                        return this.todos.splice(index, 1)
+                    }
+
+                    // 2. 将数据设置到任务项中
+                    item.title = editText
+
+                    // 3. 去除 editing 样式
+                    this.currentEditing = null
+                },
+                removeAllDone: function() {
+                    this.todos = this.todos.filter(item => !item.completed)
+                }
+
+            },
+            computed: {
+                toggleStat: {
+                    get() {
+                        return this.todos.every(item => item.completed)
+                    },
+                    set(val) {
+                        this.todos.forEach(todo => todo.completed = val)
+                    }
+                },
+                num: function() {
+                    return this.todos.filter(item => !item.completed).length;
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
